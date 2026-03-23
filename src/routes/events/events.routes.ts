@@ -7,23 +7,18 @@ import {
   listPublishedEvents,
   selectVendors,
   updateEvent,
-} from "../controllers/event.controller";
-import { requireAuth, requireRole } from "../middlewares/auth";
-import { validateBody } from "../middlewares/validate";
+} from "../../api/controllers/event.controller";
+import { requireAuth, requireRole } from "../../api/middlewares/auth";
+import { validateBody } from "../../api/middlewares/validate";
 import {
   createEventSchema,
   updateEventSchema,
   selectVendorsSchema,
-} from "../validation/event.validation";
+} from "../../api/validation/event.validation";
 
 export const eventsRouter = Router();
 
-// Public GET routes first (so / and /my are not captured by /:id)
-eventsRouter.get("/", listPublishedEvents);
-eventsRouter.get("/my", requireAuth, requireRole("organizer"), getMyEvents);
-eventsRouter.get("/:id", getEventById);
-
-// Organizer-only write routes
+// Organizer-only routes
 eventsRouter.post(
   "/",
   requireAuth,
@@ -31,6 +26,14 @@ eventsRouter.post(
   validateBody(createEventSchema),
   createEvent
 );
+
+eventsRouter.get(
+  "/my",
+  requireAuth,
+  requireRole("organizer"),
+  getMyEvents
+);
+
 eventsRouter.put(
   "/:id",
   requireAuth,
@@ -38,7 +41,14 @@ eventsRouter.put(
   validateBody(updateEventSchema),
   updateEvent
 );
-eventsRouter.delete("/:id", requireAuth, requireRole("organizer"), deleteEvent);
+
+eventsRouter.delete(
+  "/:id",
+  requireAuth,
+  requireRole("organizer"),
+  deleteEvent
+);
+
 eventsRouter.post(
   "/:id/vendors/select",
   requireAuth,
@@ -46,3 +56,8 @@ eventsRouter.post(
   validateBody(selectVendorsSchema),
   selectVendors
 );
+
+// Public routes
+eventsRouter.get("/", listPublishedEvents);
+eventsRouter.get("/:id", getEventById);
+
