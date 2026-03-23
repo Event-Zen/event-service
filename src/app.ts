@@ -1,22 +1,87 @@
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
-import pinoHttp from "pino-http";
+import morgan from "morgan";
 
-import { healthRouter } from "./api/routes/health.routes";
+import {
+  createEvent,
+  deleteEvent,
+  getEventById,
+  getMyEvents,
+  listPublishedEvents,
+  selectVendors,
+  updateEvent,
+} from "./api/controllers/event.controller";
 import { errorHandler } from "./api/middlewares/errorHandler";
-import { eventsRouter } from "./api/routes/events.routes";
+import { requireAuth, requireRole } from "./api/middlewares/auth";
+import { validateBody } from "./api/middlewares/validate";
+import {
+  createEventSchema,
+  updateEventSchema,
+  selectVendorsSchema,
+} from "./api/validation/event.validation";
+import { healthRouter } from "./api/routes/health.routes";
+import { verifyTokenOrNull } from "./config/jwt";
 
 export function createApp() {
   const app = express();
 
   app.use(helmet());
-  app.use(cors());
+  app.use(
+    cors({
+      origin: process.env.CORS_ORIGIN,
+      credentials: true,
+    })
+  );
   app.use(express.json({ limit: "1mb" }));
-  app.use(pinoHttp());
+  app.use(morgan("dev"));
 
   app.use("/health", healthRouter);
-app.use("/api/events", eventsRouter);
+
+  // Debug: check token (path outside /api/events so it never matches :id)
+  app.get("/api/check-token", (req, res) => {
+    const result = verifyTokenOrNull(req.headers.authorization);
+    res.json({ success: result.ok, ...(result.ok ? { payload: result.payload } : { error: result.error }) });
+  });
+
+  // Event routes — PLANNER (and organizer) can create/manage events
+  app.get("/api/events", listPublishedEvents);
+  app.get("/api/events/my", requireAuth, requireRole("organizer", "PLANNER"), getMyEvents);
+  app.get("/api/events/:id", getEventById);
+  app.post(
+    "/api/events",
+    requireAuth,
+    requireRole("organizer", "PLANNER"),
+    validateBody(createEventSchema),
+    createEvent
+  );
+  app.put(
+    "/api/events/:id",
+    requireAuth,
+    requireRole("organizer", "PLANNER"),
+    validateBody(updateEventSchema),
+    updateEvent
+  );
+  app.delete(
+    "/api/events/:id",
+    requireAuth,
+    requireRole("organizer", "PLANNER"),
+    deleteEvent
+  );
+  app.post(
+    "/api/events/:id/vendors/select",
+    requireAuth,
+    requireRole("organizer", "PLANNER"),
+    validateBody(selectVendorsSchema),
+    selectVendors
+  );
+
+  // 404 — must be after all routes
+  app.use((_req, _res, next) => {
+    const err = new Error("Not Found");
+    (err as any).statusCode = 404;
+    next(err);
+  });
 
   app.use(errorHandler);
 
