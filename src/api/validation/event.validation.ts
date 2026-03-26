@@ -23,6 +23,7 @@ export const selectVendorsSchema = z
           vendorId: z.string().min(1),
           serviceId: z.string().min(1),
           price: z.number().positive(),
+          category: z.string().optional(),
           vendorNameSnapshot: z.string().optional(),
           serviceNameSnapshot: z.string().optional(),
         })
