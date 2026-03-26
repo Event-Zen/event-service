@@ -7,6 +7,7 @@ export interface SelectedVendor {
   vendorId: string;
   serviceId: string;
   price: number;
+  category?: string;
   vendorNameSnapshot?: string;
   serviceNameSnapshot?: string;
 }
@@ -38,6 +39,7 @@ const SelectedVendorSchema = new Schema<SelectedVendor>(
     vendorId: { type: String, required: true },
     serviceId: { type: String, required: true },
     price: { type: Number, required: true },
+    category: { type: String },
     vendorNameSnapshot: { type: String },
     serviceNameSnapshot: { type: String },
   },
