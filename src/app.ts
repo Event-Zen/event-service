@@ -11,6 +11,7 @@ import {
   listPublishedEvents,
   selectVendors,
   updateEvent,
+  getAllEventsForAdmin,
 } from "./api/controllers/event.controller";
 import { errorHandler } from "./api/middlewares/errorHandler";
 import { requireAuth, requireRole } from "./api/middlewares/auth";
@@ -75,6 +76,9 @@ export function createApp() {
     validateBody(selectVendorsSchema),
     selectVendors
   );
+
+  // Admin monitoring endpoints
+  app.get("/api/events/admin", requireAuth, requireRole("admin", "ADMIN"), getAllEventsForAdmin);
 
   // 404 — must be after all routes
   app.use((_req, _res, next) => {
