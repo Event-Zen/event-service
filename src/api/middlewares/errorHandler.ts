@@ -11,8 +11,6 @@ export function errorHandler(
   res: Response,
   _next: NextFunction
 ) {
-  // eslint-disable-next-line no-console
-  console.error("Backend Error:", err);
   const status = err.statusCode && Number.isInteger(err.statusCode) ? err.statusCode : 500;
 
   const response: Record<string, unknown> = {
