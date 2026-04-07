@@ -44,10 +44,7 @@ export async function getMyEvents(req: Request, res: Response, next: NextFunctio
     }
 
     const organizerId = req.user.id;
-    // Exclude imageBase64 to significantly reduce API payload size where images aren't needed
-    const events = await Event.find({ organizerId })
-                             .select("-imageBase64")
-                             .sort({ createdAt: -1 });
+    const events = await Event.find({ organizerId }).sort({ createdAt: -1 });
 
     res.json({
       success: true,
@@ -58,27 +55,9 @@ export async function getMyEvents(req: Request, res: Response, next: NextFunctio
   }
 }
 
-export async function listPublishedEvents(req: Request, res: Response, next: NextFunction) {
+export async function listPublishedEvents(_req: Request, res: Response, next: NextFunction) {
   try {
-    const { limit, sortBy, select } = req.query;
-
-    let query = Event.find({ status: "published" });
-
-    if (sortBy === "createdAt:desc") {
-      query = query.sort({ createdAt: -1 });
-    } else {
-      query = query.sort({ startDateTime: 1 });
-    }
-
-    if (limit) {
-      query = query.limit(Number(limit));
-    }
-
-    if (select) {
-      query = query.select(select as string);
-    }
-
-    const events = await query;
+    const events = await Event.find({ status: "published" }).sort({ startDateTime: 1 });
 
     res.json({
       success: true,
