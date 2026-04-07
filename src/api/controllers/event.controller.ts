@@ -215,16 +215,46 @@ export async function selectVendors(req: Request, res: Response, next: NextFunct
   }
 }
 
-export async function getAllEventsForAdmin(req: Request, res: Response, next: NextFunction) {
-  try {
-    const events = await Event.find({}).sort({ createdAt: -1 });
+/**
+ * Sample request bodies
+ *
+ * POST /api/events
+ * {
+ *   "title": "Wedding Reception",
+ *   "description": "Evening reception with dinner and dancing",
+ *   "startDateTime": "2026-06-01T17:00:00.000Z",
+ *   "endDateTime": "2026-06-01T23:00:00.000Z",
+ *   "locationType": "physical",
+ *   "location": "Grand Ballroom, City Hotel",
+ *   "status": "draft"
+ * }
+ *
+ * PUT /api/events/:id
+ * {
+ *   "title": "Updated Wedding Reception",
+ *   "description": "Updated description",
+ *   "status": "published"
+ * }
+ *
+ * POST /api/events/:id/vendors/select
+ * {
+ *   "currency": "USD",
+ *   "vendors": [
+ *     {
+ *       "vendorId": "vendor-123",
+ *       "serviceId": "service-456",
+ *       "price": 1500,
+ *       "vendorNameSnapshot": "Best Catering Co.",
+ *       "serviceNameSnapshot": "Full-service catering"
+ *     },
+ *     {
+ *       "vendorId": "vendor-789",
+ *       "serviceId": "service-999",
+ *       "price": 800,
+ *       "vendorNameSnapshot": "DJ Max",
+ *       "serviceNameSnapshot": "DJ & Lighting"
+ *     }
+ *   ]
+ * }
+ */
 
-    res.json({
-      success: true,
-      count: events.length,
-      data: events,
-    });
-  } catch (err) {
-    next(err);
-  }
-}
