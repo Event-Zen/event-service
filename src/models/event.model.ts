@@ -28,7 +28,6 @@ export interface EventDocument extends Document {
   locationType: LocationType;
   location?: string;
   status: EventStatus;
-  imageBase64?: string;
   selectedVendors: SelectedVendor[];
   budget?: Budget;
   createdAt: Date;
@@ -76,7 +75,6 @@ const EventSchema = new Schema<EventDocument>(
       default: "draft",
       index: true,
     },
-    imageBase64: { type: String, required: false },
     selectedVendors: {
       type: [SelectedVendorSchema],
       default: [],

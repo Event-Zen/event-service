@@ -8,7 +8,6 @@ const baseEventSchema = z.object({
   locationType: z.enum(["physical", "online"]).optional(),
   location: z.string().optional(),
   status: z.enum(["draft", "published", "completed", "cancelled"]).optional(),
-  imageBase64: z.string().optional(),
 });
 
 export const createEventSchema = baseEventSchema.strict();
