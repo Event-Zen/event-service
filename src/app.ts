@@ -45,9 +45,6 @@ export function createApp() {
     res.json({ success: result.ok, ...(result.ok ? { payload: result.payload } : { error: result.error }) });
   });
 
-  // Admin monitoring endpoints
-  app.get("/api/events/admin", requireAuth, requireRole("admin", "ADMIN"), getAllEventsForAdmin);
-
   // Event routes — PLANNER (and organizer) can create/manage events
   app.get("/api/events", listPublishedEvents);
   app.get("/api/events/my", requireAuth, requireRole("organizer", "PLANNER"), getMyEvents);
@@ -79,6 +76,9 @@ export function createApp() {
     validateBody(selectVendorsSchema),
     selectVendors
   );
+
+  // Admin monitoring endpoints
+  app.get("/api/events/admin", requireAuth, requireRole("admin", "ADMIN"), getAllEventsForAdmin);
 
   // 404 — must be after all routes
   app.use((_req, _res, next) => {
